@@ -1,5 +1,5 @@
 import {  Fiber } from './internal-type'
-import { HostComponent, HostRoot } from './work-tags'
+import { HostComponent, HostRoot, HostText } from './work-tags'
 import {mountChildFibers, reconcileChildFibers} from './child-fiber'
 import {isStr, isNum} from 'shared/utils'
 
@@ -10,6 +10,8 @@ export function beginWork(current: Fiber | null, workInProgress: Fiber) {
       return updateHostRoot(current, workInProgress)
     case HostComponent:
       return updateHostComponent(current, workInProgress)
+    case HostText:
+      return updateHostText(current, workInProgress)
   }
   throw new Error('无法处理当前 fiber 的组件类型')
 }
@@ -35,6 +37,11 @@ function updateHostComponent(current: Fiber | null, workInProgress: Fiber) {
   reconcileChildren(current, workInProgress, nextChildren);
   
   return workInProgress.child;
+}
+
+function updateHostText(current: Fiber | null, workInProgress: Fiber) {
+  // 文本没有子节点，不需要协调
+  return null
 }
 
 // 协调子节点

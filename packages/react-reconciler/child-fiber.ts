@@ -1,4 +1,4 @@
-import { createFiberFromElement } from "./fiber";
+import { createFiberFromElement, createFiberFromText } from "./fiber";
 import { Fiber } from "./internal-types";
 import { REACT_ELEMENT_TYPE } from "shared/symbols";
 import { Placement } from "./fiber-flags";
@@ -29,7 +29,19 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
     return createdFiber
   }
 
+  function reconcileSingleTextNode(eturnFiber: Fiber, currentFirstChild: Fiber| null, textContent: string) {
+    let createdFiber = createFiberFromText(textContent)
+    createdFiber.return = returnFiber
+    return createdFiber
+  }
+
   function createChild(returnFiber: Fiber, newChild: ReactElement) {
+    if (isText(newChild)) {
+      // reconcileSingleTextNode
+      let createdFiber = createFiberFromText(`${newChild}`) //newChild maybe number
+      createdFiber.return = returnFiber
+      return createdFiber
+    }
     if (typeof newChild === 'object' && newChild !== null) {
       switch(newChild.$$typeof) {
         case REACT_ELEMENT_TYPE:
@@ -78,6 +90,12 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
 
   function reconcileChildFibers(returnFiber: Fiber, currentFirstChild: Fiber| null, newChildren: ReactElement) {
     // 检查 newchild 类型，单个节点，文本，数组
+    if (isText(newChildren)) {
+      return placeSingleChild(
+        reconcileSingleTextNode(returnFiber, currentFirstChild, newChildren)
+      )
+    }
+
     if (typeof newChildren === 'object' && newChildren !== null) {
       switch(newChildren.$$typeof) {
         case REACT_ELEMENT_TYPE:
@@ -95,4 +113,11 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
     return null
   }
   return reconcileChildFibers
+}
+
+function isText(newChild: any) {
+  return (
+    (typeof newChild === "string" && newChild !== "") ||
+    typeof newChild === "number"
+  );
 }

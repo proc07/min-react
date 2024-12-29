@@ -99,9 +99,9 @@ function completeUnitOfWork(unitOfWork: Fiber) {
   let completedWork = unitOfWork
 
   do {
-    const currentFiber = completedWork.alternate
-    const returnFiber = completedWork.return as Fiber
-
+    const currentFiber = completedWork.alternate // 备用fiber
+    const returnFiber = completedWork.return as Fiber // 父节点fiber
+    // 下一个节点
     let next = completeWork(currentFiber, completedWork)
 
     if (next !== null) {

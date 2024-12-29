@@ -1,6 +1,6 @@
 import { Placement, Update } from './fiber-flags'
 import { FiberRoot, Fiber } from './internal-type'
-import { HostComponent, HostRoot } from './work-tags'
+import { HostComponent, HostRoot, HostText } from './work-tags'
 
 export function commitMutationEffects(root: FiberRoot, finishedWork: Fiber) {
   // 遍历 fiber 节点
@@ -32,7 +32,9 @@ function commitReconciliationEffects(finishedWork: Fiber) {
 }
 
 function commitPlacement(finishedWork: Fiber) {
-  if (finishedWork.stateNode && finishedWork.tag === HostComponent) {
+  if (finishedWork.stateNode && (
+    finishedWork.tag === HostComponent || finishedWork.tag === HostText
+  )) {
     // finishedWork 是一个 dom 节点
     const childDom = finishedWork.stateNode
     const parentFiber =  getHostParentFiber(finishedWork)
