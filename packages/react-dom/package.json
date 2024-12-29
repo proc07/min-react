@@ -8,5 +8,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "shared": "workspace:*",
+    "scheduler": "workspace:*",
+    "react-reconciler": "workspace:*"
+  }
 }

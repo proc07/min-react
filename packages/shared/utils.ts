@@ -2,7 +2,7 @@ export function getCurrentTime() {
   return performance.now()
 }
 
-export function isArrary(obj: any) {
+export function isArray(obj: any) {
   return Array.isArray(obj)
 }
 
@@ -18,6 +18,6 @@ export function isFn(obj: Function | null | undefined) {
   return typeof obj === 'function'
 }
 
-export function isString(obj: any) {
+export function isStr(obj: any) {
   return typeof obj === 'string'
 }
