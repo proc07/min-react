@@ -3,7 +3,7 @@ import { FiberRoot, Fiber } from './internal-type'
 import { HostComponent, HostRoot, HostText } from './work-tags'
 
 export function commitMutationEffects(root: FiberRoot, finishedWork: Fiber) {
-  // 遍历 fiber 节点
+  // 递归遍历 fiber 节点
   recursivelyTraverseMutationEffects(root, finishedWork)
   // 根据 flags 来操作
   commitReconciliationEffects(finishedWork)
@@ -46,6 +46,14 @@ function commitPlacement(finishedWork: Fiber) {
     }
 
     parentDom.appendChild(childDom)
+  } else {
+    // 最外层是 fragment node. eg. render(<>123</>)
+    let child = finishedWork.child
+
+    while(child !== null) {
+      commitPlacement(child)
+      child = child.sibling
+    }
   }
 }
 

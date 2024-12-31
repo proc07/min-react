@@ -1,5 +1,5 @@
 import {  Fiber } from './internal-type'
-import { HostComponent, HostRoot, HostText } from './work-tags'
+import { Fragment, HostComponent, HostRoot, HostText } from './work-tags'
 import {mountChildFibers, reconcileChildFibers} from './child-fiber'
 import {isStr, isNum} from 'shared/utils'
 
@@ -12,6 +12,8 @@ export function beginWork(current: Fiber | null, workInProgress: Fiber) {
       return updateHostComponent(current, workInProgress)
     case HostText:
       return updateHostText(current, workInProgress)
+    case Fragment:
+      return updateHostFragment(current, workInProgress)
   }
   throw new Error('无法处理当前 fiber 的组件类型')
 }
@@ -44,7 +46,16 @@ function updateHostText(current: Fiber | null, workInProgress: Fiber) {
   return null
 }
 
+function updateHostFragment(current: Fiber | null, workInProgress: Fiber) {
+  const nextChildren = workInProgress.pendingProps.children
+
+  reconcileChildren(current, workInProgress, nextChildren)
+
+  return workInProgress.child
+}
+
 // 协调子节点
+// 函数在处理子节点当中，创建 child dom 对应的 fiber 节点，会把dom节点中的属性值赋值到 fiber 节点当中
 function reconcileChildren(current: Fiber | null, workInProgress: Fiber, nextChildren: any) {
   if (current === null) {
     // 初次渲染

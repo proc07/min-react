@@ -1,7 +1,7 @@
 import {NoFlags, Placement} from "./fiber-flags";
 import {IndeterminateComponent, WorkTag} from "./work-tags";
 import {Lanes, NoLanes} from "./fiber-lane";
-import type {Fiber} from "./internal-type";
+import type {Fiber} from "./internal-types";
 import {REACT_FRAGMENT_TYPE} from "shared/symbols";
 
 import {
@@ -24,34 +24,58 @@ export function createFiber(
   return new FiberNode(tag, pendingProps, key);
 }
 
-function FiberNode(tag: WorkTag, pendingProps: unknown, key: null | string) {
-  // Instance
-  this.tag = tag;
-  this.key = key;
-  this.elementType = null;
-  this.type = null;
-  this.stateNode = null;
+class FiberNode {
+  tag: WorkTag;
+  key: null | string;
+  elementType: any;
+  type: any;
+  stateNode: any;
+  return: Fiber | null;
+  child: Fiber | null;
+  sibling: Fiber | null;
+  index: number;
+  pendingProps: any;
+  memoizedProps: any;
+  updateQueue: any;
+  memoizedState: any;
+  flags: number;
+  subtreeFlags: number;
+  deletions: any;
+  lanes: Lanes;
+  childLanes: Lanes;
+  alternate: Fiber | null;
+  nextEffect: Fiber | null;
 
-  // Fiber
-  this.return = null;
-  this.child = null;
-  this.sibling = null;
-  this.index = 0;
+  constructor(tag: WorkTag, pendingProps: unknown, key: null | string) {
+    // Instance
+    this.tag = tag;
+    this.key = key;
+    this.elementType = null;
+    this.type = null;
+    this.stateNode = null;
 
-  this.pendingProps = pendingProps;
-  this.memoizedProps = null;
-  this.updateQueue = null;
-  this.memoizedState = null;
+    // Fiber
+    this.return = null;
+    this.child = null;
+    this.sibling = null;
+    this.index = 0;
 
-  // Effects
-  this.flags = NoFlags;
-  this.subtreeFlags = NoFlags;
-  this.deletions = null;
+    this.pendingProps = pendingProps;
+    this.memoizedProps = null;
+    this.updateQueue = null;
+    this.memoizedState = null;
 
-  this.lanes = NoLanes;
-  this.childLanes = NoLanes;
+    // Effects
+    this.flags = NoFlags;
+    this.subtreeFlags = NoFlags;
+    this.deletions = null;
 
-  this.alternate = null;
+    this.lanes = NoLanes;
+    this.childLanes = NoLanes;
+
+    this.alternate = null;
+    this.nextEffect = null;
+  }
 }
 
 // This is used to create an alternate fiber to do work on.
@@ -98,6 +122,7 @@ export function createWorkInProgress(current: Fiber, pendingProps: any): Fiber {
   return workInProgress;
 }
 
+
 export function createHostRootFiber(tag: RootTag): Fiber {
   return createFiber(HostRoot, null, null);
 }
@@ -119,7 +144,7 @@ export function createFiberFromTypeAndProps(
   } else if (isStr(type)) {
     fiberTag = HostComponent;
   } else if (type === REACT_FRAGMENT_TYPE) {
-    return createFiberFromFragment(pendingProps.children, lanes, key);
+    fiberTag = Fragment
   }
 
   const fiber = createFiber(fiberTag, pendingProps, key);

@@ -84,7 +84,7 @@ function performUnitOfWork(unitOfWork: Fiber) {
   const current = unitOfWork.alternate
 
   // 1. begin work
-  // 这2个参数都是 fiber，区别是
+  // 这2个参数都是 fiber，区别是 第一个是备用fiber
   let next = beginWork(current, unitOfWork)
   
   if (next === null) {
@@ -105,7 +105,7 @@ function completeUnitOfWork(unitOfWork: Fiber) {
     let next = completeWork(currentFiber, completedWork)
 
     if (next !== null) {
-      // children mode
+      // children mode???????????????
       workInProgress = next
       return
     }

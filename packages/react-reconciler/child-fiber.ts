@@ -1,6 +1,6 @@
-import { createFiberFromElement, createFiberFromText } from "./fiber";
+import { createFiberFromElement, createFiberFromText, createFiberFromFragment } from "./fiber";
 import { Fiber } from "./internal-types";
-import { REACT_ELEMENT_TYPE } from "shared/symbols";
+import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from "shared/symbols";
 import { Placement } from "./fiber-flags";
 import { ReactElement } from "shared/types";
 import {isArray} from 'shared/utils'
@@ -8,7 +8,8 @@ import {isArray} from 'shared/utils'
 type ChildReconciler = (
   returnFiber: Fiber,
   currentFirstChild: Fiber | null,
-  newChild: any) => Fiber | null
+  newChild: any
+) => Fiber | null
 
 export const reconcileChildFibers: ChildReconciler = createChildReconciler(true)
 export const mountChildFibers: ChildReconciler = createChildReconciler(false)
@@ -48,6 +49,10 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
           const created = createFiberFromElement(newChild)
           created.return = returnFiber
           return created
+        // case REACT_FRAGMENT_TYPE:
+        //   const fragment = createFiberFromFragment(newChild)
+        //   fragment.return = returnFiber
+        //   return fragment
       }
     }
 
@@ -86,13 +91,13 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
 
     }
     return resultFirstChild
-  } 
+  }
 
-  function reconcileChildFibers(returnFiber: Fiber, currentFirstChild: Fiber| null, newChildren: ReactElement) {
+  function reconcileChildFibers(returnFiber: Fiber, currentFirstChild: Fiber| null, newChildren: ReactElement | string) {
     // 检查 newchild 类型，单个节点，文本，数组
     if (isText(newChildren)) {
       return placeSingleChild(
-        reconcileSingleTextNode(returnFiber, currentFirstChild, newChildren)
+        reconcileSingleTextNode(returnFiber, currentFirstChild, newChildren as string)
       )
     }
 
