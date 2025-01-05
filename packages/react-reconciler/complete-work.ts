@@ -1,5 +1,5 @@
 import {  Fiber } from './internal-type'
-import { Fragment, HostComponent, HostRoot, HostText } from './work-tags'
+import { ClassComponent, Fragment, FunctionComponent, HostComponent, HostRoot, HostText } from './work-tags'
 import {isStr, isNum} from 'shared/utils'
 
 // 根据 fiber 信息创建真实 dom 添加到父节点
@@ -9,6 +9,8 @@ export function completeWork(current: Fiber | null, workInProgress: Fiber) {
   switch(workInProgress.tag) {
     case Fragment:
     case HostRoot:
+    case FunctionComponent:
+    case ClassComponent:
       return null
 
     case HostComponent:

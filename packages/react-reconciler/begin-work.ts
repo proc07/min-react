@@ -1,5 +1,5 @@
 import {  Fiber } from './internal-type'
-import { Fragment, HostComponent, HostRoot, HostText } from './work-tags'
+import { ClassComponent, FunctionComponent, Fragment, HostComponent, HostRoot, HostText } from './work-tags'
 import {mountChildFibers, reconcileChildFibers} from './child-fiber'
 import {isStr, isNum} from 'shared/utils'
 
@@ -14,6 +14,9 @@ export function beginWork(current: Fiber | null, workInProgress: Fiber) {
       return updateHostText(current, workInProgress)
     case Fragment:
       return updateHostFragment(current, workInProgress)
+    // case ClassComponent:
+    case FunctionComponent:
+      return updateFunctionComponent(current, workInProgress)
   }
   throw new Error('无法处理当前 fiber 的组件类型')
 }
@@ -50,6 +53,15 @@ function updateHostFragment(current: Fiber | null, workInProgress: Fiber) {
   const nextChildren = workInProgress.pendingProps.children
 
   reconcileChildren(current, workInProgress, nextChildren)
+
+  return workInProgress.child
+}
+
+function updateFunctionComponent(current: Fiber | null, workInProgress: Fiber) {
+  const { type, pendingProps } = workInProgress
+  const children = type(pendingProps)
+
+  reconcileChildren(current, workInProgress, children)
 
   return workInProgress.child
 }
