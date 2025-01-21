@@ -1,5 +1,5 @@
 import { ReactNodeList } from 'shared/types'
-import { FiberRoot, Container } from './internal-type'
+import { FiberRoot, Container } from './internal-types'
 import {scheduleUpdateOnFiber} from './fiber-work-loop.ts'
 
 export function updateContainer(element: ReactNodeList, container: FiberRoot) {

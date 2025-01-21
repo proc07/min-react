@@ -1,9 +1,10 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+// import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import UseReducerFunc from './UseReducerFunc.tsx'
 
-// import { createRoot } from '../../packages/react-dom/client'
+import { createRoot } from '../../packages/react-dom/client'
 
 // function FuncComp() {
 //   return <div>
@@ -28,10 +29,10 @@ import App from './App.tsx'
 //   </div>
 // )
 // console.log('jsx', jsx)
-// createRoot(document.getElementById('root')!).render(jsx)
+createRoot(document.getElementById('root')!).render(<UseReducerFunc />)
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// createRoot(document.getElementById('root')!).render(
+//   <StrictMode>
+//     <App />
+//   </StrictMode>,
+// )

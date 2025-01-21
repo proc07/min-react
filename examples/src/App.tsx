@@ -10,7 +10,7 @@ function App() {
 
   console.log('App render', count2, count)
 
-  const [data] = useState(new Array(20000).fill(1))
+  const [data, setData] = useState(new Array(20000).fill(1))
 
   return (
     <>
@@ -38,7 +38,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
       {
-        data.map(n => <div>
+        data.map(n => <div onClick={() => setData(new Array(20000).fill(2))}>
           <div>
             <div>n</div>
           </div>

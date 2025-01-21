@@ -1,7 +1,8 @@
-import {  Fiber } from './internal-type'
+import {  Fiber } from './internal-types'
 import { ClassComponent, FunctionComponent, Fragment, HostComponent, HostRoot, HostText } from './work-tags'
 import {mountChildFibers, reconcileChildFibers} from './child-fiber'
 import {isStr, isNum} from 'shared/utils'
+import { renderWithHooks } from './fiber-hooks'
 
 // 1.处理当前 fiber， 不同组件对应的fiber 处理方式不同。返回子节点
 export function beginWork(current: Fiber | null, workInProgress: Fiber) {
@@ -26,6 +27,11 @@ function updateHostRoot(current: Fiber | null, workInProgress: Fiber) {
 
   reconcileChildren(current, workInProgress, nextChildren)
 
+  if (current) {
+    // 更新阶段，workInProgress.child 复用的节点连接父级
+    current.child = workInProgress.child
+  }
+
   return workInProgress.child
 }
 function updateHostComponent(current: Fiber | null, workInProgress: Fiber) {
@@ -40,7 +46,7 @@ function updateHostComponent(current: Fiber | null, workInProgress: Fiber) {
   }
 
   reconcileChildren(current, workInProgress, nextChildren);
-  
+
   return workInProgress.child;
 }
 
@@ -59,7 +65,8 @@ function updateHostFragment(current: Fiber | null, workInProgress: Fiber) {
 
 function updateFunctionComponent(current: Fiber | null, workInProgress: Fiber) {
   const { type, pendingProps } = workInProgress
-  const children = type(pendingProps)
+  // const children = type(pendingProps)
+  const children = renderWithHooks(current, workInProgress, type, pendingProps)
 
   reconcileChildren(current, workInProgress, children)
 

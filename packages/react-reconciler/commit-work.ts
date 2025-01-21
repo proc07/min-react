@@ -1,6 +1,7 @@
-import { Placement, Update } from './fiber-flags'
-import { FiberRoot, Fiber } from './internal-type'
+import { Placement, Update, ChildDeletion } from './fiber-flags'
+import { FiberRoot, Fiber } from './internal-types'
 import { HostComponent, HostRoot, HostText } from './work-tags'
+import {isHost} from './complete-work'
 
 export function commitMutationEffects(root: FiberRoot, finishedWork: Fiber) {
   // 递归遍历 fiber 节点
@@ -28,6 +29,33 @@ function commitReconciliationEffects(finishedWork: Fiber) {
     finishedWork.flags &= ~Placement
   } else if (flags & Update) {
 
+  } else if (flags & ChildDeletion) {
+    // 删除节点
+    // 获取父节点
+    const parnetFiber = isHostParent(finishedWork) ? finishedWork : getHostParentFiber(finishedWork)
+    // 删除节点
+    commitDeletions(finishedWork.deletions!, parnetFiber.stateNode)
+
+    finishedWork.flags &= ~ChildDeletion
+    finishedWork.deletions = null
+  }
+}
+// 删除dom节点，根据 父 dom 删除 子 dom
+function commitDeletions(deletions: Fiber[], parnetDom: Element) {
+  deletions?.forEach((deletion) => {
+    // deletion 不一定有子节点, 有可能是一个 fragment
+    console.log('commitDeletions', getStateNode(deletion), deletion)
+    parnetDom.removeChild(getStateNode(deletion))
+  });
+}
+
+function getStateNode(fiber: Fiber) {
+  let node = fiber;
+  while (1) {
+    if (isHost(node) && node.stateNode) {
+      return node.stateNode;
+    }
+    node = node.child as Fiber;
   }
 }
 
@@ -61,11 +89,15 @@ function getHostParentFiber(fiber: Fiber) {
   let parnet = fiber.return
 
   while (parnet !== null) {
-    if (parnet.tag === HostComponent || parnet.tag === HostRoot) {
+    if (isHostParent(parnet)) {
       return parnet
     }
     parnet = parnet.return
   }
 
   throw new Error('getHostParentFiber')
+}
+
+function isHostParent(fiber: Fiber) {
+  return fiber.tag === HostComponent || fiber.tag === HostRoot
 }

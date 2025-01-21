@@ -1,4 +1,4 @@
-import { FiberRoot, Fiber } from './internal-type'
+import { FiberRoot, Fiber } from './internal-types'
 import {ensureRootIsScheduled} from './fiber-root-scheduler'
 import { createWorkInProgress } from './fiber'
 import { beginWork } from './begin-work'
@@ -69,8 +69,12 @@ function prepareFreshStack(root: FiberRoot): Fiber {
   // create an alternate fiber
   const rootWorkInProgress = createWorkInProgress(root.current, null);
   
-  workInProgress = rootWorkInProgress; // Fiber
-  
+  if (workInProgress === null) {
+    workInProgress = rootWorkInProgress; // root Fiber
+  } else {
+    // 否则从 dispatchReducerAction 传入的 子fiber
+  }
+
   return rootWorkInProgress;
 }
 // 工作循环同步
@@ -86,14 +90,19 @@ function performUnitOfWork(unitOfWork: Fiber) {
   // 1. begin work
   // 这2个参数都是 fiber，区别是 第一个是备用fiber
   let next = beginWork(current, unitOfWork)
-  
+  // 把pendingProps更新到memoizedProps
+  unitOfWork.memoizedProps = unitOfWork.pendingProps;
+  // 1.1
+  // 1.2
+
   if (next === null) {
-    // 2.complete work
+    // 2.没有下一个节点，完成工作单元
     completeUnitOfWork(unitOfWork)
   } else {
     workInProgress = next as Fiber
   }
 }
+
 // 深度优先遍历，子节点，兄弟节点
 function completeUnitOfWork(unitOfWork: Fiber) {
   let completedWork = unitOfWork

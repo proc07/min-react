@@ -12,7 +12,17 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8
 
-  packages/react: {}
+  packages/react:
+    dependencies:
+      react-reconciler:
+        specifier: workspace:*
+        version: link:../react-reconciler
+      scheduler:
+        specifier: workspace:*
+        version: link:../scheduler
+      shared:
+        specifier: workspace:*
+        version: link:../shared
 
   packages/react-dom:
     dependencies:

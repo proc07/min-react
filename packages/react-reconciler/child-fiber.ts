@@ -1,9 +1,10 @@
 import { createFiberFromElement, createFiberFromText, createFiberFromFragment } from "./fiber";
 import { Fiber } from "./internal-types";
 import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from "shared/symbols";
-import { Placement } from "./fiber-flags";
+import { Placement, ChildDeletion } from "./fiber-flags";
 import { ReactElement } from "shared/types";
 import {isArray} from 'shared/utils'
+import { createWorkInProgress } from './fiber'
 
 type ChildReconciler = (
   returnFiber: Fiber,
@@ -23,9 +24,71 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
     }
     return newFiber
   }
+
+  function useFiber(fiber: Fiber, pendingProps: any): Fiber {
+    const clone = createWorkInProgress(fiber, pendingProps);
+    clone.index = 0;
+    clone.sibling = null;
+    return clone;
+  }
+
+  function deleteChild(returnFiber: Fiber, childToDelete: Fiber) {
+    if (!shouldTrackSideEffects) {
+      return
+    }
+
+    const deletions = returnFiber.deletions
+
+    if (deletions === null) {
+      returnFiber.deletions = [childToDelete]
+      returnFiber.flags |= ChildDeletion
+    } else {
+      returnFiber.deletions!.push(childToDelete)
+    }
+  }
+  // 删除当前子节点，以及后面全部的兄弟节点
+  function deleterenaububgChildren(returnFiber: Fiber, currentFirstChild: Fiber) {
+    if (!shouldTrackSideEffects) {
+      return
+    }
+
+    let childToDelete:Fiber| null  = currentFirstChild;
+    while (childToDelete !== null) {
+      deleteChild(returnFiber, childToDelete);
+      childToDelete = childToDelete.sibling;
+    }
+    return null;
+  }
+
   // （协调）创建单个节点的 fiber
-  function reconcileSingleElement(returnFiber: Fiber, currentFirstChild: Fiber| null, newChild: ReactElement) {
-    let createdFiber = createFiberFromElement(newChild)
+  function reconcileSingleElement(returnFiber: Fiber, currentFirstChild: Fiber| null, element: ReactElement) {
+    // 节点复用的条件
+    // 1.同一层级，key 相同，type 相同
+    const key = element.key // 新 key
+    let child = currentFirstChild // 旧节点fiber
+
+    while (child !== null) {
+      // key 相同，type 相同
+      if (child.key === key) {
+        // 复用
+        if (child.elementType === element.type) {
+          const existing = useFiber(child, element.props);
+          existing.return = returnFiber;
+          return existing;
+        } else {
+          // 同一层级下不应该存在2个相同 key 的元素，删除
+          deleterenaububgChildren(returnFiber, child)
+          break;
+        }
+      } else {
+        deleteChild(returnFiber, child)
+      }
+
+      // 当前节点不同，对比下一个兄弟节点
+      child = child.sibling
+    }
+
+    let createdFiber = createFiberFromElement(element)
     createdFiber.return = returnFiber
     return createdFiber
   }
@@ -49,10 +112,7 @@ function createChildReconciler(shouldTrackSideEffects: boolean) {
           const created = createFiberFromElement(newChild)
           created.return = returnFiber
           return created
-        // case REACT_FRAGMENT_TYPE:
-        //   const fragment = createFiberFromFragment(newChild)
-        //   fragment.return = returnFiber
-        //   return fragment
+
       }
     }
 

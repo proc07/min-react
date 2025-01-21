@@ -1,6 +1,6 @@
 import {ReactNodeList} from 'shared/types'
 import { createFiberRoot } from 'react-reconciler/fiber-root'
-import { FiberRoot, Container } from 'react-reconciler/internal-type.ts'
+import { FiberRoot, Container } from 'react-reconciler/internal-types'
 import {updateContainer} from 'react-reconciler/fiber-reconciler'
 
 type RootType = {

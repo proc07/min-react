@@ -1,4 +1,4 @@
-import { FiberRoot, Fiber } from './internal-type'
+import { FiberRoot, Fiber } from './internal-types'
 import {NormalPriority} from 'scheduler/src/priorities'
 import { scheduleCallback } from 'scheduler/src/scheduler'
 import {performConcurrentWorkOnRoot} from './fiber-work-loop'
